@@ -1,0 +1,21 @@
+PIZZA_SIZE
+
+Small
+Medium
+Large
+Jumbo
+
+
+PIZZA_TOPPINGS
+
+Pepperoni
+Mushrooms
+Onions
+Sausage
+Bacon
+Extra cheese
+Black olives
+Green peppers
+Pineapple
+Spinach
+Chicken

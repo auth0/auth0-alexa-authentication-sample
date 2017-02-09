@@ -1,0 +1,16 @@
+.jumbotron h2 { background-color: transparent; }
+
+.content {
+  padding: 0 2em;
+  text-align: center;
+}
+
+td {
+  text-align: left;
+}
+
+.tab-content {
+    margin: 0.5em 0;
+}
+
+

@@ -1,0 +1,26 @@
+{
+  "intents": [
+    {
+      "intent": "GetMeSomePizzaIntent",
+      "slots": [
+        {
+          "name": "Size",
+          "type": "PIZZA_SIZE"
+        },
+        {
+          "name": "Toppings",
+          "type": "PIZZA_TOPPINGS"
+        }
+      ]
+    },
+    {
+      "intent": "AuthorizePizzaOrderIntent",
+      "slots": [
+        {
+          "name": "Code",
+          "type": "AMAZON.FOUR_DIGIT_NUMBER"
+        }
+      ]
+    }
+  ]
+}

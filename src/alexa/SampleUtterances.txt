@@ -1,0 +1,6 @@
+GetMeSomePizzaIntent get me some pizza
+GetMeSomePizzaIntent get me a {Size} pizza
+GetMeSomePizzaIntent get me a {Size} pizza with {Toppings}
+AuthorizePizzaOrderIntent Authorize {Code}
+AuthorizePizzaOrderIntent Confirm order {Code}
+AuthorizePizzaOrderIntent Operation pizza is a go {Code}

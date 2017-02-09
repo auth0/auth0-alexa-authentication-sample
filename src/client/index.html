@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>pod</title>
+  <link rel="stylesheet" href="https://cdn.auth0.com/styleguide/4.8.25/index.min.css" />
+
+  <link href="./styles.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body data-pusher-enabled="{{{ pusher.enabled }}}" data-pusher-key="{{{ pusher.key }}}" data-pusher-cluster="{{{ pusher.cluster }}}">
+  <section class="jumbotron">
+    <h2><img src="./logo.svg" /></h2>
+    <h1>pod</h1>
+    <p>pizza on demand</p>
+  </section>
+
+  <input type="hidden" id="cid" value="{{{ cid }}}" />
+  <input type="hidden" id="csrf_token" value="{{{ csrf }}}" />
+
+  <!-- -->
+  {{{ template-start "tpl-login" }}}
+  <div class="content">
+    <div class="alert alert-global alert-warning" v-if="alert"><strong>Something bad just happened!</strong> \{{ alert }}</div>
+    <div class="btn btn-success" v-on:click="login">LOGIN</div>
+  </div>
+  {{{ template-end }}}
+  <!-- -->
+  {{{ template-start "tpl-policy" }}}
+  <div class="content">
+    <h2>Privacy Policy</h2>
+    <p>The privacy policy is here to meet Amazon requirements.</p>
+  </div>
+  {{{ template-end }}}
+  <!-- -->
+  {{{ template-start "tpl-user-profile" }}}
+  <div class="content">
+    <h2>User Profile</h2>
+    <form class="form-horizontal col-xs-12">
+      <div class="form-group">
+        <label class="col-xs-4 control-label">Email</label>
+        <div class="col-xs-4">
+          <input id="email" type="text" placeholder="" v-model="email" class="form-control" disabled>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-xs-4 control-label">Phone Number</label>
+        <div class="col-xs-4">
+          <input id="phone" type="text" placeholder="" v-model="phone" class="form-control" disabled>
+        </div>
+      </div>
+    </form>
+  </div>
+  {{{ template-end }}}
+  <!-- -->
+  {{{ template-start "tpl-order-history" }}}
+  <div class="content">
+    <h2><i class="icon-budicon-338"></i> Pending Orders</h2>
+    <template v-if="orders.pending">
+      <div class="col-xs-12">
+        <table class="table table-fixed">
+          <thead>
+            <tr>
+              <th width="40%"></th>
+              <th width="20%">Size</th>
+              <th width="40%">Toppings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>\{{orders.pending.datetime}}</td>
+              <td>\{{orders.pending.pizza.size}}</td>
+              <td>\{{orders.pending.pizza.toppings}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <p h1 v-else>There are no pending orders.</p>
+
+    <h2><i class="icon-budicon-334"></i> Confirmed Orders</h2>
+    <template v-if="orders.confirmed && orders.confirmed.length > 0">
+      <div class="col-xs-12">
+        <table class="table table-fixed">
+          <thead>
+            <tr>
+              <th width="40%"></th>
+              <th width="20%">Size</th>
+              <th width="40%">Toppings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in orders.confirmed">
+              <td>\{{order.datetime}}</td>
+              <td>\{{order.pizza.size}}</td>
+              <td>\{{order.pizza.toppings}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <p h1 v-else>There are no confirmed orders.</p>
+    <div class="btn btn-default" v-on:click="clear">CLEAR CONFIRMED</div>
+  </div>
+  {{{ template-end }}}
+  <!-- -->
+
+  <div id="app"></div>
+
+  <script src="https://js.pusher.com/3.2/pusher.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.8/vue.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+  <script src="./scripts.js"></script>
+</body>
+
+</html>
