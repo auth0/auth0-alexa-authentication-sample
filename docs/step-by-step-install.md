@@ -11,7 +11,7 @@ In order to deploy and run this sample skill you'll need to ensure the provision
 * *(Optional, but recommended)* Twilio account - [https://www.twilio.com/](https://www.twilio.com/)
 * *(Optional)* Pusher account - [https://pusher.com/](https://pusher.com/)
 
-## Auth0 Configuration Steps
+## Auth0 Initial Configuration Steps
 
 The following steps will all be performed through the Auth0 Dashboard available at [https://manage.auth0.com/#/](https://manage.auth0.com/#/).
 
@@ -87,4 +87,85 @@ The following steps will all be performed through the Amazon Developer Console, 
 
 Start the process by clicking on the *Add a New Skill* button.
 
-### `AMZ:1` - Provide Skill Information
+### `AMZ:1` - Skill Information
+
+Provide the following information:
+
+* Choose `Custom Interaction Model` for the skill type.
+* Choose `English (U.S.)` for the language.
+* Provide a name at your choice, for example, `POD`.
+* Provide an invocation name at your choice, for example, `pizza on demand`.
+
+Click the *Next* button to move to the following step.
+
+### `AMZ:2` - Skill Interaction Model
+
+Click the *Add a Slot Type* button and provide `PIZZA_SIZE` for the slot type *name* and some sample values, for example:
+
+```
+Small
+Medium
+Large
+Jumbo
+```
+
+Click the *Save* button and wait for the slot type to be processed.
+
+After processing of the previous slot type completes click again in the *Add a Slot Type* button, provide `PIZZA_TOPPINGS` for the slot type *name* and some sample values, for example:
+
+```
+Pepperoni
+Mushrooms
+Onions
+Sausage
+Bacon
+Extra cheese
+Black olives
+Green peppers
+Pineapple
+Spinach
+Chicken
+```
+
+Click the *Save* button and wait for the slot type to be processed.
+
+After adding both slot types, you'll need to provide the *intent schema* and *sample utterances*. The information to add to these fields is available in following files` contained within this sample repository:
+
+* Intent Schema: `src/alexa/IntentSchema.json`
+* Sample Utterances: `src/alexa/SampleUtterances.txt`
+
+You can copy/paste the content of those files to the respective form fields. After providing this information click the *Next* button to move to the next step.
+
+### `AMZ:3` - Skill Configuration
+
+Choose `HTTPS` for the service endpoint type and then pick the geographical region that is most applicable to you and provide the URL at which the POD Alexa Skill API will be available. If you plan to strictly follow this guide and deploy the sample as a Webtask associated with your Auth0 account then you can use an URL similar to the following:
+
+```
+https://[your auth0 account name].[your auth0 account region].webtask.io/pod/alexa
+```
+
+> **NOTE** - The region will either be `us`, `eu` or `au` depending on where your Auth0 account is located.
+
+After configuring the URL, enable the *Account Linking* process and provide the following information:
+
+* For the *Authorization URL* use an URL based on the following template `https://[your auth0 account].auth0.com/authorize?audience=[the identifier of the POD API]`. If you strictly followed this guide the identifier of the POD API will be `https%3A%2F%2Fpod.localtest.me`, otherwise, use the identifier you chose.
+* For the *Client Id* use the client identifier of the client application created in step `A0:2` of this guide.
+* For the *Domain List* add the domain `cdn.auth0.com` to the list.
+* For the *Scope* field add the scopes `openid` and `offline_access` to the list.
+* For the *Authorization Grant Type* choose `Auth Code Grant`.
+* For the *Access Token URI* use an URL based on the following template `https://[your auth0 account].auth0.com/oauth/token`.
+* For the *Client Secret* use the client secret of the client application created in step `A0:2` of this guide.
+* For the *Client Authentication Scheme* choose `HTTP Basic`.
+For the *Privacy Policy URL*, if the skill will be deployed to Webtask, use an URL based on the following template `https://[your auth0 account name].[your auth0 account region].webtask.io/pod/app#/policy`, otherwise, use a suitable URL.
+
+Before moving to the next step take note of all the URL's listed in the *Redirect URLs* section because you'll later add those to the client application configuration in Auth0.
+
+Click the *Next* button to move to the next step.
+
+### `AMZ:4` - Skill SSL Certificate
+
+If you plan on strictly following this guide the skill will be deployed to Webtask and as such you can choose the option *My development endpoint is a sub-domain of a domain that has a wildcard certificate from a certificate authority*, otherwise, you'll need to select the suitable option and proceed accordingly.
+
+At this stage, you've already provided Amazon all the necessary information to enable the test step, however, you'll first need to perform a few additional steps outside the Amazon Developer Console before being able to successfully test it.
+
+
