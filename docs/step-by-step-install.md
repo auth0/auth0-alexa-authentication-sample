@@ -75,6 +75,8 @@ Enabling the SMS option requires you to provide information about your Twilio ac
 
 In either cases when configuring the chosen type of Passwordless connection you need to set the *OTP Length* to 4 and enable the *Disable Sign Ups* switch.
 
+> **NOTE** - The use of passwordless authentication either with SMS or email require that the phone number or email address of the user be verified before using it to deliver authentication code. For demonstration purposes this sample skill does not require that step so please take that under consideration.
+
 ### `A0:6` - Ensure Enabled Connections in POD Client Application
 
 On the sidebar at the right select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Connections* button available in that client entry row.
@@ -168,4 +170,89 @@ If you plan on strictly following this guide the skill will be deployed to Webta
 
 At this stage, you've already provided Amazon all the necessary information to enable the test step, however, you'll first need to perform a few additional steps outside the Amazon Developer Console before being able to successfully test it.
 
+## Auth0 Additional Configuration Steps
 
+### `A0:7` - Update POD Client Application Configuration
+
+On the sidebar at the right select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Settings* button available in that client entry row.
+
+Got the *Allowed Callback URLs* field and add all the redirect URL's you saved in step `AMZ:3`. This URL's will allow the Amazon backend to request and received tokens meant to be used agains the POD API.
+
+If you plan to deploy this sample application in Webtask you can also add an additional redirect URL that will allow the POD website to authenticate users against Auth0. The URL to be added will be similar to the following:
+
+```
+https://[your auth0 account name].[your auth0 account region].webtask.io/pod/app/oidc/callback
+```
+
+> **NOTE** - For simplicity purposes, both the Amazon back-end and the POD website reuse the same client application configured in Auth0.
+
+## Deployment
+
+For a simplified deployment experience and given that it's for demonstration purposes only this guide will take you through the steps required to deploy the sample skill to a Webtask associated with your Auth0 account.
+
+Before continuing ensure that you have the Webtask CLI installed [https://webtask.io/docs/wt-cli](https://webtask.io/docs/wt-cli).
+
+Given the deploy will use the Webtask associated to your Auth0 account you'll need to access the account settings in the Auth0 Dashboard and then select the Webtask section.
+
+Go through and execute the setup instructions available at that location.
+
+The following steps assume that you already cloned the sample repository locally and that you have an `npm` and `wt-cli` enabled command line open at your local sample working directory.
+
+### Install Node Modules
+
+```bash
+npm install
+```
+
+### Configure secrets.ini
+
+Start by creating a `secrets.ini` file (you can use `secrets.example.ini` as template) under `/src/runtimes/` containing the settings mentioned in the next sections.
+
+#### Mandatory settings
+
+```
+AUTH0_DOMAIN=[account].auth0.com
+API_ID=[Identifier used for the API used by Alexa within Auth0]
+API_SIGNING_KEY=[The signing key used for tokens issued to the API]
+APP_CLIENT_ID=[The client identifier for the application]
+APP_CLIENT_SECRET=[The client secret for the application]
+```
+
+#### Optional settings
+
+The Pusher related settings are optional because the web application can function without them; it just won't provide real-time updates. If you have a Pusher account you can create an application to represent this sample and then include the following settings.
+
+```
+PUSHER_APPID=[Pusher application identifier]
+PUSHER_CLUSTER=[Pusher cluster]
+PUSHER_KEY=[Pusher key]
+PUSHER_SECRET=[Pusher secret]
+```
+
+### Create Deployment Bundle
+
+```bash
+npm run build
+```
+
+### Create Webtask
+
+In the following command you'll need to add the appropriate Webtask CLI profile using the `-p` option if the default one is not the one associated with the Auth0 account you used to configure the skill.
+
+```bash
+wt create -n pod --secrets-file src\runtimes\secrets.ini build\bundle.js
+```
+
+After the previous command executes successfully the web application root will be available at `https://[your auth0 account name].[your auth0 account region].webtask.io/pod/`. This application includes the API called by Alexa located at `/pod/alexa/`, a mostly internal API located at `/pod/api/` and a back-end web application available at `/pod/app/`. You can use the last one to quickly check if the deploy went smoothly.
+
+## Installing the Alexa Application
+
+This sample skill requires account linking so before being able to properly test it, you'll need to install the Amazon Alexa application for your mobile platform of choice and go through the account linking.
+
+> **NOTE** - The Alexa application is geo-restricted so you may not be able to install it by default in some countries. However, at least from an Android perspective you can Google/Bing your way out of this small roadblock.
+
+After successfully installing the application you'll need to login with your Amazon account and then access your skills. In this section you should see the skill you configured previously among your listed skills.
+
+Access this skill and go through the account linking process. This process will show you the Auth0 hosted authentication page where you'll be able to login using username/password credentials of the user you created in step `A0:4`.
+
+## Testing the Skill
