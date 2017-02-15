@@ -17,7 +17,7 @@ The following steps will all be performed through the Auth0 Dashboard available 
 
 ### `A0:1` - Create the POD Back-End API
 
-On the sidebar at the right select the APIs menu and then click the *CREATE API* button.
+On the sidebar at the left select the APIs menu and then click the *CREATE API* button.
 
 > *NOTE*: If you don't see an APIs section on the sidebar make sure that on your **advanced** account settings you enable the *Enable APIs Section* switch.
 
@@ -33,7 +33,7 @@ After being navigated to the API details page, choose the Settings section and e
 
 ### `A0:2` - Create the POD Client Application
 
-On the sidebar at the right select the Clients menu and then click the *CREATE CLIENT* button.
+On the sidebar at the left select the Clients menu and then click the *CREATE CLIENT* button.
 
 Provide a *name* at your choice, for example, `POD` and select *Regular Web Applications*  as the client type.
 
@@ -41,7 +41,7 @@ Confirm the client creation.
 
 ### `A0:3` - Create a Database Connection
 
-On the sidebar at the right select the Connections menu, then the Database sub-menu and finally click the *CREATE DB CONNECTION* button.
+On the sidebar at the left select the Connections menu, then the Database sub-menu and finally click the *CREATE DB CONNECTION* button.
 
 Provide a *name* at your choice, for example, `DB`.
 
@@ -51,7 +51,7 @@ After being navigated to the connection details page, choose the Clients section
 
 ### `A0:4` - Create a Test User
 
-On the sidebar at the right select the Users menu and click the *CREATE USER* button.
+On the sidebar at the left select the Users menu and click the *CREATE USER* button.
 
 Provide the following information:
 
@@ -69,7 +69,7 @@ If you intend to use Twilio to deliver authentication codes to the user mobile p
 
 ### `A0:5` - Enable Passwordless
 
-On the sidebar at the right select the Connection menu, then the Passwordless sub-menu and enable either the *SMS* or *Email* switch. If you provided a phone number for the test user then **you are required to enable the SMS** option, otherwise, you can choose to enable the Email option and get the authentication codes through your email inbox.
+On the sidebar at the left select the Connection menu, then the Passwordless sub-menu and enable either the *SMS* or *Email* switch. If you provided a phone number for the test user then **you are required to enable the SMS** option, otherwise, you can choose to enable the Email option and get the authentication codes through your email inbox.
 
 Enabling the SMS option requires you to provide information about your Twilio account. For the Email connection and purely for testing purposes you can use the Auth0 built-in email provider.
 
@@ -79,7 +79,7 @@ In either cases when configuring the chosen type of Passwordless connection you 
 
 ### `A0:6` - Ensure Enabled Connections in POD Client Application
 
-On the sidebar at the right select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Connections* button available in that client entry row.
+On the sidebar at the left select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Connections* button available in that client entry row.
 
 Ensure that the only enabled connection for the client are the database connection created in step `A0:3` and the type of Passwordless connection that you enabled in step `A0:5` of this guide.
 
@@ -174,7 +174,7 @@ At this stage, you've already provided Amazon all the necessary information to e
 
 ### `A0:7` - Update POD Client Application Configuration
 
-On the sidebar at the right select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Settings* button available in that client entry row.
+On the sidebar at the left select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Settings* button available in that client entry row.
 
 Got the *Allowed Callback URLs* field and add all the redirect URL's you saved in step `AMZ:3`. This URL's will allow the Amazon backend to request and received tokens meant to be used agains the POD API.
 
@@ -211,11 +211,11 @@ Start by creating a `secrets.ini` file (you can use `secrets.example.ini` as tem
 #### Mandatory settings
 
 ```
-AUTH0_DOMAIN=[account].auth0.com
-API_ID=[Identifier used for the API used by Alexa within Auth0]
-API_SIGNING_KEY=[The signing key used for tokens issued to the API]
-APP_CLIENT_ID=[The client identifier for the application]
-APP_CLIENT_SECRET=[The client secret for the application]
+AUTH0_DOMAIN=[your auth0 account domain]
+API_ID=[identifier for the API created in step A0:1]
+API_SIGNING_KEY=[signing key for the API created in step A0:1]
+APP_CLIENT_ID=[client identifier for the application created in step A0:2]
+APP_CLIENT_SECRET=[client secret for the application created in step A0:2]
 ```
 
 #### Optional settings
@@ -255,4 +255,20 @@ After successfully installing the application you'll need to login with your Ama
 
 Access this skill and go through the account linking process. This process will show you the Auth0 hosted authentication page where you'll be able to login using username/password credentials of the user you created in step `A0:4`.
 
+You're now ready to test your Alexa skill.
+
 ## Testing the Skill
+
+### Using the Amazon Developer Console
+
+Access the Alexa skills list section ([https://developer.amazon.com/edw/home.html#/skills/list](https://developer.amazon.com/edw/home.html#/skills/list)) in the Amazon Developer Console and select the skill you created previously.
+
+On the sidebar at the left select the *Test* section and scroll to the *Service Simulator* area.
+
+You can now enter a utterance and review both the request performed by Alexa and the response returned by the deployed skill.
+
+### Using Echosim.io
+
+Access the Echosim.io application at ([https://echosim.io/](https://echosim.io/)) and login with your Amazon account.
+
+Follow the on-screen instructions on how to activate the microphone and talk to Alexa. Given Echosim.io is aimed at simulating an Echo device you'll have to use the skill invocation name you configured in order to first activate the correct skill.
