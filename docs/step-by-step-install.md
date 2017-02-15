@@ -1,6 +1,6 @@
 # Step by Step Install
 
-This guide will take you through all the necessary steps required to deploy and run the Alexa skill authentication sample available at [https://github.com/auth0/auth0-alexa-authentication-sample](https://github.com/auth0/auth0-alexa-authentication-sample). The sample in question uses a ficticious pizzaria *Pizza on Demand* (POD) that wants to securely allow their users to order pizzas through their recently developed Alexa skill.
+This guide will take you through all the necessary steps required to deploy and run the Alexa skill authentication sample available at [https://github.com/auth0/auth0-alexa-authentication-sample](https://github.com/auth0/auth0-alexa-authentication-sample). The sample in question uses a fictitious pizzeria *Pizza on Demand* (POD) that wants to securely allow their users to order pizzas through their recently developed Alexa skill.
 
 ## Pre-Conditions
 
@@ -35,7 +35,7 @@ After being navigated to the API details page, choose the Settings section and e
 
 On the sidebar at the left select the Clients menu and then click the *CREATE CLIENT* button.
 
-Provide a *name* at your choice, for example, `POD` and select *Regular Web Applications*  as the client type.
+Provide a *name* at your choice, for example, `POD` and select *Regular Web Applications* as the client type.
 
 Confirm the client creation.
 
@@ -140,7 +140,7 @@ You can copy/paste the content of those files to the respective form fields. Aft
 
 ### `AMZ:3` - Skill Configuration
 
-Choose `HTTPS` for the service endpoint type and then pick the geographical region that is most applicable to you and provide the URL at which the POD Alexa Skill API will be available. If you plan to strictly follow this guide and deploy the sample as a Webtask associated with your Auth0 account then you can use an URL similar to the following:
+Choose `HTTPS` for the service endpoint type and then pick the geographical region that is most applicable to you and provide the URL at which the POD Alexa Skill API will be available. If you plan to strictly follow this guide and deploy the sample as a Webtask associated with your Auth0 account, then you can use an URL similar to the following:
 
 ```
 https://[your auth0 account name].[your auth0 account region].webtask.io/pod/alexa
@@ -176,7 +176,7 @@ At this stage, you've already provided Amazon all the necessary information to e
 
 On the sidebar at the left select the Clients menu, locate the entry for the client application create in step `A0:2` and click the *Settings* button available in that client entry row.
 
-Got the *Allowed Callback URLs* field and add all the redirect URL's you saved in step `AMZ:3`. This URL's will allow the Amazon backend to request and received tokens meant to be used agains the POD API.
+Got the *Allowed Callback URLs* field and add all the redirect URL's you saved in step `AMZ:3`. This URL's will allow the Amazon backend to request and received tokens meant to be used against the POD API.
 
 If you plan to deploy this sample application in Webtask you can also add an additional redirect URL that will allow the POD website to authenticate users against Auth0. The URL to be added will be similar to the following:
 
@@ -220,7 +220,7 @@ APP_CLIENT_SECRET=[client secret for the application created in step A0:2]
 
 #### Optional settings
 
-The Pusher related settings are optional because the web application can function without them; it just won't provide real-time updates. If you have a Pusher account you can create an application to represent this sample and then include the following settings.
+The Pusher related settings are optional because the web application can function without them; it just won't provide real-time updates. If you have a Pusher account, you can create an application to represent this sample and then include the following settings.
 
 ```
 PUSHER_APPID=[Pusher application identifier]
@@ -265,10 +265,10 @@ Access the Alexa skills list section ([https://developer.amazon.com/edw/home.htm
 
 On the sidebar at the left select the *Test* section and scroll to the *Service Simulator* area.
 
-You can now enter a utterance and review both the request performed by Alexa and the response returned by the deployed skill.
+You can now enter an utterance and review both the request performed by Alexa and the response returned by the deployed skill.
 
 ### Using Echosim.io
 
 Access the Echosim.io application at ([https://echosim.io/](https://echosim.io/)) and login with your Amazon account.
 
-Follow the on-screen instructions on how to activate the microphone and talk to Alexa. Given Echosim.io is aimed at simulating an Echo device you'll have to use the skill invocation name you configured in order to first activate the correct skill.
+Follow the on-screen instructions on how to activate the microphone and talk to Alexa. Given Echosim.io is aimed at providing an online simulation of an Echo device you'll have to use the skill invocation name you configured in order to first activate the correct skill.
