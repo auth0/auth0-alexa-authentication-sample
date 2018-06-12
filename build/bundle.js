@@ -1086,15 +1086,14 @@ module.exports =
 	}
 
 	function handleAuthorizePizzaOrderIntentRequest(req, res, next) {
-	  var code = req.body.request.intent.slots && req.body.request.intent.slots["Code"];
-
-	  if (!code || !code.value) {
+		var code = req.body.request.intent.slots.PizzaCode.value;
+	  if (!code) {
 	    res.json({
 	      "version": "1.0",
 	      "response": {
 	        "outputSpeech": {
 	          "type": "PlainText",
-	          "text": "Failed to authorize order."
+	          "text": "Failed to authorize order because code is invalid."
 	        },
 	        "shouldEndSession": true
 	      }
@@ -1102,8 +1101,6 @@ module.exports =
 
 	    return;
 	  }
-
-	  code = code.value;
 
 	  request({
 	    uri: req.absoluteBaseUrl + "/" + ApplicationPaths.API + "/authorize/" + code,
@@ -1280,31 +1277,60 @@ module.exports =
 	        payload["email"] = req.user.email;
 	      }
 
-	      // Initiate passwordless code
-	      request({
-	        uri: "https://" + req.webtaskContext.data.AUTH0_DOMAIN + "/passwordless/start",
-	        json: payload,
-	        method: "POST"
-	      }, function (error, response, body) {
-	        if (!error && response.statusCode == 200) {
-	          res.json({ "mode": mode });
-	        } else {
-	          res.sendStatus(400);
-	        }
-	      });
+				initiatePasswordless(req, res, payload, mode);
 	    });
-	  });
+		});
+		
+		var FF_USE_AUTH0_PASSWORDLESS = false;
 
+		function initiatePasswordless(req, res, payload, mode) {
+			if (FF_USE_AUTH0_PASSWORDLESS) {
+				initiatePasswordlessAuth0(req, res, payload, mode);
+			} else {
+				initiatePasswordlessCustom(req, res, payload, mode);
+			}
+		}
+
+		function initiatePasswordlessAuth0(req, res, payload, mode) {
+			 // Initiate passwordless code
+			 request({
+				uri: "https://" + req.webtaskContext.data.AUTH0_DOMAIN + "/passwordless/start",
+				json: payload,
+				method: "POST"
+			}, function (error, response, body) {
+				if (!error && response.statusCode == 200) {
+					res.json({ "mode": mode });
+				} else {
+					res.sendStatus(400);
+				}
+			});
+		}
+
+	var code; 
+		function initiatePasswordlessCustom(req, res, payload, mode) {
+			code = Math.floor( 1000 + (9000 - 1000) * Math.random());
+			console.log('Verification code for req.user.sub=' + req.user.sub + ' = ' + code);
+			req.db.add({ auth_codes: [{ id: req.user.sub, value: code }] }, function (error) {
+				if (!error) {
+					res.json({ "mode": mode });
+				} else {
+					console.log('ERROR: ' + error);
+
+					res.sendStatus(400);
+				}
+			});
+		}
+
+		
 	  router.post("/authorize/:code", function (req, res, next) {
-	    var code = req.params.code;
-
+		var code = req.params.code.replace("authorize", "");
 	    if (!code) {
 	      console.log("failed to receive authorization code");
 
 	      res.sendStatus(400);
 
 	      return;
-	    }
+			}
 
 	    // Get order from DB
 	    req.db.get(function (error, data) {
@@ -1335,57 +1361,10 @@ module.exports =
 	      } else {
 	        payload["connection"] = "email";
 	        payload["username"] = req.user.email;
-	      }
-
-	      // Validate passwordless code
-	      request({
-	        uri: "https://" + req.webtaskContext.data.AUTH0_DOMAIN + "/oauth/ro",
-	        json: payload,
-	        method: "POST"
-	      }, function (error, response, body) {
-	        if (!error && response.statusCode == 200) {
-	          // Validate ID Token subject
-	          var token = jwt.decode(response.body.id_token);
-
-	          if (!token || token.sub !== req.user.sub) {
-	            console.log("mismatch between token user (" + token.sub + ") and order user (" + req.user.sub + ")");
-
-	            res.sendStatus(400);
-
-	            return;
-	          }
-
-	          order.state = "confirmed";
-
-	          var confirmed = data.orders[req.user.sub] || [];
-
-	          confirmed.push(order);
-
-	          var changes = {
-	            remove: { pending_orders: [{ id: req.user.sub }] },
-	            update: { orders: [{ id: req.user.sub, value: confirmed }] }
-	          };
-
-	          // Update order in DB
-	          req.db.mutate(changes, function (error) {
-	            if (error) {
-	              return next(error);
-	            }
-
-	            var cid = crypto.createHash("sha1").update(req.user.sub).digest("hex");
-
-	            if (pusher) {
-	              pusher.trigger("pod-" + cid, "confirmed", order);
-	            }
-
-	            res.sendStatus(200);
-	          });
-	        } else {
-	          console.log("failed to validate the authorization code");
-
-	          res.sendStatus(400);
-	        }
-	      });
+				}
+				
+				// Validate passwordless code
+	      validateCode(request, req, payload, jwt, res, order, data, next, crypto, pusher, code);
 	    });
 	  });
 
@@ -1441,3 +1420,79 @@ module.exports =
 
 /***/ }
 /******/ ]);
+var FF_USE_AUTH0_PASSWORDLESS = false; 
+function validateCode(request, req, payload, jwt, res, order, data, next, crypto, pusher, code) {
+	if (FF_USE_AUTH0_PASSWORDLESS) {
+		validateCodeAuth0(request, req, payload, jwt, res, order, data, next, crypto, pusher, code);
+	} else {
+		validateCodeCustom(request, req, payload, jwt, res, order, data, next, crypto, pusher, code);
+	}
+}
+
+function validateCodeCustom(request, req, payload, jwt, res, order, data, next, crypto, pusher, code) {
+	var codeFromDB;
+	// look up code from DB
+	req.db.get(function (error, data) {
+		if (error) {
+			return next(error);
+		}
+		codeFromDB = JSON.stringify(data.auth_codes[data.auth_codes.length - 1].value);
+	
+		console.log("code from db = " + codeFromDB);
+		console.log("code code= " + code);
+	// process order on successful lookup
+		if(codeFromDB == code){
+			processOrder(order, data, req, next, crypto, pusher, res);
+		}else{
+			console.log("error in equality");
+		}
+	});
+	
+	
+	
+}
+
+function validateCodeAuth0(request, req, payload, jwt, res, order, data, next, crypto, pusher,code) {
+	request({
+		uri: "https://" + req.webtaskContext.data.AUTH0_DOMAIN + "/oauth/ro",
+		json: payload,
+		method: "POST"
+	}, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			// Validate ID Token subject
+			var token = jwt.decode(response.body.id_token);
+			if (!token || token.sub !== req.user.sub) {
+				console.log("mismatch between token user (" + token.sub + ") and order user (" + req.user.sub + ")");
+				res.sendStatus(400);
+				return;
+			}
+			processOrder(order, data, req, next, crypto, pusher, res);
+		}
+		else {
+			console.log("failed to validate the authorization code");
+			res.sendStatus(400);
+		}
+	});
+}
+
+function processOrder(order, data, req, next, crypto, pusher, res) {
+	order.state = "confirmed";
+	var confirmed = data.orders[req.user.sub] || [];
+	confirmed.push(order);
+	var changes = {
+		remove: { pending_orders: [{ id: req.user.sub }] },
+		update: { orders: [{ id: req.user.sub, value: confirmed }] }
+	};
+	// Update order in DB
+	req.db.mutate(changes, function (error) {
+		if (error) {
+			return next(error);
+		}
+		var cid = crypto.createHash("sha1").update(req.user.sub).digest("hex");
+		if (pusher) {
+			pusher.trigger("pod-" + cid, "confirmed", order);
+		}
+		res.sendStatus(200);
+	});
+}
+
